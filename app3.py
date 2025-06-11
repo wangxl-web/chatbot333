@@ -1,24 +1,25 @@
 import streamlit as st
-from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
 import requests
+from sentence_transformers import SentenceTransformer  # ✅ 加回来，仅用于编码问题
 
 # 加载向量文件
 with np.load("embeddings.npz", allow_pickle=True) as data:
     documents = data["documents"].tolist()
     embeddings = data["embeddings"]
 
-# 加载模型
-model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
-
 # 建立向量索引
 index = faiss.IndexFlatL2(embeddings.shape[1])
 index.add(embeddings)
 
+# ✅ 加载模型（仅用于编码问题）
+model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+model.to("cpu")  # 显式加载到 CPU，避免 cloud 报错
+
 # API 设置
 DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
-API_KEY = st.secrets["API_KEY"]  # 安全写法
+API_KEY = st.secrets["API_KEY"]
 
 # 检索函数
 def retrieve_docs(question, top_k=3):
@@ -43,8 +44,6 @@ def call_deepseek_api(question, context):
     }
 
     response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload)
-
-    # ✅ 加入调试语句：打印响应码和返回内容
     print("返回状态码：", response.status_code)
     print("返回内容：", response.text)
 
