@@ -3,6 +3,8 @@ from sentence_transformers import SentenceTransformer
 import faiss
 import numpy as np
 import requests
+import os
+
 
 # 初始化模型和知识库
 model = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
@@ -21,8 +23,7 @@ index = faiss.IndexFlatL2(embeddings.shape[1])
 index.add(embeddings)
 
 # DeepSeek API
-DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
-API_KEY = "sk-a09b5eebe61d46ad93fd14cb28cdf352"  # 请妥善保管
+API_KEY = st.secrets["DEEPSEEK_API_KEY"]
 
 def retrieve_docs(question, top_k=3):
     q_embed = model.encode([question])
