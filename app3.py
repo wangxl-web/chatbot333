@@ -28,21 +28,30 @@ def retrieve_docs(question, top_k=3):
 
 # API 调用函数
 def call_deepseek_api(question, context):
-    headers = {
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-    }
     payload = {
         "model": "deepseek-chat",
         "messages": [
-            {"role": "system", "content": "你是一个营养学专家，请结合资料回答用户问题。"},
-            {"role": "user", "content": f"问题：{question}\n相关文献：{context}"}
+            {"role": "system", "content": "你是一个营养学专家。"},
+            {"role": "user", "content": f"根据以下内容回答问题：{context}\n\n问题是：{question}"}
         ],
         "temperature": 0.7
     }
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {API_KEY}"
+    }
+
     response = requests.post(DEEPSEEK_API_URL, headers=headers, json=payload)
-    result = response.json()
-    return result.get("choices", [{}])[0].get("message", {}).get("content", "未能生成回答。")
+
+    # ✅ 加入调试语句：打印响应码和返回内容
+    print("返回状态码：", response.status_code)
+    print("返回内容：", response.text)
+
+    if response.status_code == 200:
+        return response.json()["choices"][0]["message"]["content"]
+    else:
+        return f"未能生成回答（状态码: {response.status_code}）"
 
 # Streamlit 页面
 st.set_page_config(page_title="🥗 营养问答机器人", layout="centered")
