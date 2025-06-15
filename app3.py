@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import faiss
 import requests
-from sentence_transformers import SentenceTransformer  # ✅ 加回来，仅用于编码问题
+from sentence_transformers import SentenceTransformer  
 
 # 加载向量文件
 with np.load("embeddings.npz", allow_pickle=True) as data:
@@ -13,7 +13,7 @@ with np.load("embeddings.npz", allow_pickle=True) as data:
 index = faiss.IndexFlatL2(embeddings.shape[1])
 index.add(embeddings)
 
-# ✅ 加载模型（仅用于编码问题）
+# 加载模型（仅用于编码问题）
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 model.to("cpu")  # 显式加载到 CPU，避免 cloud 报错
 
